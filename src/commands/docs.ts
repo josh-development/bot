@@ -7,7 +7,7 @@ import { createCommand } from "./mod.ts";
 
 import { getDocs, getPackages, searchMethod } from "../utils/docs.ts";
 import { Embeds } from "../utils/embed.ts";
-import { BOT_COLOR } from "../../configs.ts";
+import { BOT_COLOR } from "../../config.ts";
 
 const packages = (await getPackages()).map((x) => ({
   name: x.name,

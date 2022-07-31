@@ -6,7 +6,7 @@ import {
   fastFileLoader,
   startBot,
 } from "./deps.ts";
-import { BOT_ID, BOT_TOKEN } from "./configs.ts";
+import { BOT_ID, BOT_TOKEN } from "./config.ts";
 import { logger } from "./src/utils/logger.ts";
 import { events } from "./src/events/mod.ts";
 import { updateCommands } from "./src/utils/helpers.ts";

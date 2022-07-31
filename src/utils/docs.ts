@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import type { Bot } from "../../deps.ts";
-import { GITHUB_TOKEN } from "../../configs.ts";
+import { GITHUB_TOKEN } from "../../config.ts";
 import { Embeds } from "./embed.ts";
 
 export const docsCache: { [key: string]: { docs: Docs; date: Date } } = {};
