@@ -28,7 +28,7 @@ export const bot = enableCachePlugin(
     botId: BOT_ID,
     intents: [],
     events,
-  })
+  }),
 );
 
 enableCacheSweepers(bot);
