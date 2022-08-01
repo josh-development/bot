@@ -12,23 +12,22 @@ import {
   getAllDocs,
   getAllPackages,
   getDocs,
-  resolveType,
   responses,
-  searchMethod,
+  searchClass,
 } from "../utils/docs.ts";
 import { Embeds } from "../utils/embed.ts";
 
 const packages = await getAllPackages();
 
 createCommand({
-  name: "method",
+  name: "class",
   description: "Get documentation of JoshDB",
   type: ApplicationCommandTypes.ChatInput,
   scope: "Global",
   options: [
     {
-      name: "method",
-      description: "Method name",
+      name: "class",
+      description: "Class name",
       type: ApplicationCommandOptionTypes.String,
       required: true,
     },
@@ -55,12 +54,11 @@ createCommand({
     const inputPackage = interaction.data.options.find(
       (x) => x.name === "package"
     )?.value as string;
-    const inputMethod = interaction.data.options.find(
-      (x) => x.name === "method"
-    )?.value as string;
+    const inputClass = interaction.data.options.find((x) => x.name === "class")
+      ?.value as string;
 
     let docs;
-    let method;
+    let cls;
 
     if (!inputPackage || inputPackage === "all") {
       docs = await getAllDocs();
@@ -68,15 +66,15 @@ createCommand({
       for (const doc of docs) {
         all = [...all, ...doc.classes];
       }
-      method = searchMethod(inputMethod, {
+      cls = searchClass(inputClass, {
         classes: all,
       });
     } else {
       docs = await getDocs(inputPackage);
-      method = searchMethod(inputMethod, docs);
+      cls = searchClass(inputClass, docs);
     }
 
-    if (!method) {
+    if (!cls) {
       return await bot.helpers.sendInteractionResponse(
         interaction.id,
         interaction.token,
@@ -89,43 +87,29 @@ createCommand({
               .setDescription(
                 responses[Math.floor(Math.random() * responses.length)]
                   .split("{word}")
-                  .join(inputMethod)
+                  .join(inputClass)
               ),
           },
         }
       );
     }
 
-    const embeds: Embeds = new Embeds(bot);
+    const embeds: Embeds = new Embeds(bot)
+      .setTitle(cls.name)
+      .setColor(BOT_COLOR)
+      .setDescription(cls.comment.description ?? "No description")
+      .addField(
+        "Params",
+        cls.construct.parameters
+          .map((x) => `${x.name}: ${x.type.toString()}`)
+          .join(", ") ?? "No params"
+      );
 
-    for (const sig of method.signatures) {
-      const embed = {
-        title: `Josh.${sig.name}()`,
-        color: BOT_COLOR,
-        description: sig.comment.description ?? undefined,
-        fields: [
-          {
-            name: "Parameters",
-            value: sig.parameters
-              .map((x) => `\`${x.name}\`: ${resolveType(x.type)}`)
-              .join("\n"),
-            inline: true,
-          },
-          {
-            name: "Returns",
-            value: sig.returnType.toString().split("typescript.").join(""),
-            inline: true,
-          },
-        ],
-      };
-      if (sig.comment.example.length > 0) {
-        embed.fields.push({
-          name: "Example" + (sig.comment.example.length > 1 ? "s" : ""),
-          value: sig.comment.example.map((x) => x.text).join(""),
-          inline: false,
-        });
-      }
-      embeds.addEmbed(embed);
+    if (cls.comment.example.length > 0) {
+      embeds.addField(
+        "Example",
+        cls.comment.example.map((x) => x.text).join("")
+      );
     }
 
     return bot.helpers.sendInteractionResponse(
@@ -138,9 +122,9 @@ createCommand({
           components: new Components().addButton(
             "Source",
             "Link",
-            `https://josh.evie.dev/${
-              method.project.name.split("@joshdb/")[1]
-            }/${method.name}`
+            `https://josh.evie.dev/${cls.project.name.split("@joshdb/")[1]}/${
+              cls.name
+            }`
           ),
         },
       }
