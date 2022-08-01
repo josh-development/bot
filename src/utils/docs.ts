@@ -1,8 +1,9 @@
 import { GITHUB_TOKEN } from "../../config.ts";
 
-import type { ProjectParser as Docs } from "../../deps.ts";
+import { ProjectParser } from "../../deps.ts";
 
-export const docsCache: { [key: string]: { docs: Docs.JSON; date: Date } } = {};
+export const docsCache: { [key: string]: { docs: ProjectParser; date: Date } } =
+  {};
 
 export const getFiles = async () => {
   const jsonResponse = await fetch(
@@ -21,14 +22,14 @@ export const getPackageDocs = async (path: string) => {
   const jsonResponse = await fetch(
     `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`
   );
-  const jsonData = (await jsonResponse.json()) as Docs.JSON;
-  return jsonData;
+  const jsonData = (await jsonResponse.json()) as ProjectParser.JSON;
+  return new ProjectParser(jsonData);
 };
 
-export const searchMethod = (query: string, docs: Docs.JSON) => {
+export const searchMethod = (query: string, docs: ProjectParser) => {
   for (const cls of docs.classes) {
     for (const method of cls.methods) {
-      if (method.name.toLowerCase().includes(query.toLowerCase())) {
+      if (method.name.toLowerCase() === query.toLowerCase()) {
         return method;
       }
     }

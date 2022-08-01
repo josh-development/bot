@@ -2,12 +2,14 @@ import {
   ApplicationCommandOptionTypes,
   ApplicationCommandTypes,
   InteractionResponseTypes,
+  ReferenceTypeParser,
+  TypeParser,
 } from "../../deps.ts";
 import { createCommand } from "./mod.ts";
 
+import { BOT_COLOR } from "../../config.ts";
 import { getDocs, getPackages, searchMethod } from "../utils/docs.ts";
 import { Embeds } from "../utils/embed.ts";
-import { BOT_COLOR } from "../../config.ts";
 
 const packages = (await getPackages()).map((x) => ({
   name: x.name,
@@ -20,49 +22,20 @@ const responses = [
   "I'll have you know, punk, that I only do Josh, and `{word}` is definitely not a method in josh!",
 ];
 
-// const getTypeArgs = (param: ParameterParser.JSON): string => {
-//   if (param.typeArguments.length > 0) {
-//     return (
-//       param.name +
-//       "<" +
-//       param.typeArguments.map((x) => getTypeArgs(x)).join(", ") +
-//       ">"
-//     );
-//   } else {
-//     return param.name;
-//   }
-// };
+const resolveReferenceType = (type: ReferenceTypeParser) => {
+  const { packageName, name } = type;
+  return `[${name}](https://josh.evie.dev/${
+    (packageName || "core")?.split("@joshdb/")[1]
+  }/${name})`;
+};
 
-// const getPackageName = (
-//   param: ParameterParser.JSON
-// ): { package: string; name: string } | undefined => {
-//   if (!param.packageName) return { package: "core", name: param.name };
+const resolveType = (type: TypeParser) => {
+  if (type instanceof ReferenceTypeParser) {
+    return resolveReferenceType(type);
+  }
 
-//   if (param.packageName.startsWith("@joshdb/")) {
-//     return {
-//       package: param.packageName.split("@joshdb/")[1],
-//       name: param.name,
-//     };
-//   } else {
-//     for (const typeArg of param.typeArguments) {
-//       const name = getPackageName(typeArg);
-//       if (name) {
-//         return name;
-//       }
-//     }
-//     return undefined;
-//   }
-// };
-
-// const resolveReference = (param: ParameterParser.JSON) => {
-//   const annotated = getTypeArgs(param);
-
-//   const output = getPackageName(param);
-
-//   if (!output) return annotated;
-
-//   return `[${annotated}](https://josh.evie.dev/${output.package}/${output.name})`;
-// };
+  return type.toString();
+};
 
 createCommand({
   name: "method",
@@ -128,30 +101,49 @@ createCommand({
       );
     }
 
-    return await bot.helpers.sendInteractionResponse(
+    const embeds: Embeds = new Embeds(bot);
+
+    for (const sig of method.signatures) {
+      const embed = {
+        title: `Josh.${sig.name}()`,
+        color: BOT_COLOR,
+        description: sig.comment.description ?? undefined,
+        fields: [
+          {
+            name: "Parameters",
+            value: sig.parameters
+              .map((x) => `\`${x.name}\`: ${resolveType(x.type)}`)
+              .join("\n"),
+            inline: true,
+          },
+          {
+            name: "Returns",
+            value: sig.returnType.toString(),
+            inline: true,
+          },
+        ],
+      };
+      if (sig.comment.example.length > 0) {
+        embed.fields.push({
+          name: "Example" + (sig.comment.example.length > 1 ? "s" : ""),
+          value: sig.comment.example.map((x) => x.text).join(""),
+          inline: false,
+        });
+      }
+      embeds.addEmbed(embed);
+    }
+
+    return bot.helpers.sendInteractionResponse(
       interaction.id,
       interaction.token,
       {
         type: InteractionResponseTypes.ChannelMessageWithSource,
         data: {
-          embeds: new Embeds(bot)
-            .setTitle(`Josh.${method.name}()`)
-            .setColor(BOT_COLOR)
-            .addField(
-              "Parameters",
-              method.signatures[0].parameters
-                .map((x) => `\`${x.name}\`:  ${x.type.kind}`)
-                .join("\n"),
-              true
-            ),
-          // .addField(
-          //   "Returns",
-          //   `*${
-          //     method.signatures[0].returnType.kind === "reference"
-          //       ? resolveReference(method.signatures[0].returnType)
-          //       : method.signatures[0].returnType.type
-          //   }*`,
-          //   true
+          embeds,
+          // components: new Components().addButton(
+          //   "Source",
+          //   "Link",
+          //   "https://josh.evie.dev"
           // ),
         },
       }

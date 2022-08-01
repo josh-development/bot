@@ -1,4 +1,14 @@
 {
   "deno.enable": true,
-  "deno.lint": true
+  "deno.lint": true,
+  "editor.tabSize": 2,
+  "editor.useTabStops": false,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.fixAll.eslint": true,
+    "source.organizeImports": true
+  },
+  "files.eol": "\n",
 }
