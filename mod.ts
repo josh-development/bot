@@ -22,13 +22,15 @@ await fastFileLoader(paths).catch((err) => {
   Deno.exit(1);
 });
 
+log.info("Loaded all events and commands");
+
 export const bot = enableCachePlugin(
   createBot({
     token: BOT_TOKEN,
     botId: BOT_ID,
     intents: [],
     events,
-  }),
+  })
 );
 
 enableCacheSweepers(bot);

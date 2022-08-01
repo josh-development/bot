@@ -20,55 +20,49 @@ const responses = [
   "I'll have you know, punk, that I only do Josh, and `{word}` is definitely not a method in josh!",
 ];
 
-type reference = {
-  packageName?: string | undefined;
-  name: string;
-  typeArguments: reference[];
-};
+// const getTypeArgs = (param: ParameterParser.JSON): string => {
+//   if (param.typeArguments.length > 0) {
+//     return (
+//       param.name +
+//       "<" +
+//       param.typeArguments.map((x) => getTypeArgs(x)).join(", ") +
+//       ">"
+//     );
+//   } else {
+//     return param.name;
+//   }
+// };
 
-const getTypeArgs = (param: reference): string => {
-  if (param.typeArguments.length > 0) {
-    return (
-      param.name +
-      "<" +
-      param.typeArguments.map((x) => getTypeArgs(x)).join(", ") +
-      ">"
-    );
-  } else {
-    return param.name;
-  }
-};
+// const getPackageName = (
+//   param: ParameterParser.JSON
+// ): { package: string; name: string } | undefined => {
+//   if (!param.packageName) return { package: "core", name: param.name };
 
-const getPackageName = (
-  param: reference,
-): { package: string; name: string } | undefined => {
-  if (!param.packageName) return { package: "core", name: param.name };
+//   if (param.packageName.startsWith("@joshdb/")) {
+//     return {
+//       package: param.packageName.split("@joshdb/")[1],
+//       name: param.name,
+//     };
+//   } else {
+//     for (const typeArg of param.typeArguments) {
+//       const name = getPackageName(typeArg);
+//       if (name) {
+//         return name;
+//       }
+//     }
+//     return undefined;
+//   }
+// };
 
-  if (param.packageName.startsWith("@joshdb/")) {
-    return {
-      package: param.packageName.split("@joshdb/")[1],
-      name: param.name,
-    };
-  } else {
-    for (const typeArg of param.typeArguments) {
-      const name = getPackageName(typeArg);
-      if (name) {
-        return name;
-      }
-    }
-    return undefined;
-  }
-};
+// const resolveReference = (param: ParameterParser.JSON) => {
+//   const annotated = getTypeArgs(param);
 
-const resolveReference = (param: reference) => {
-  const annotated = getTypeArgs(param);
+//   const output = getPackageName(param);
 
-  const output = getPackageName(param);
+//   if (!output) return annotated;
 
-  if (!output) return annotated;
-
-  return `[${annotated}](https://josh.evie.dev/${output.package}/${output.name})`;
-};
+//   return `[${annotated}](https://josh.evie.dev/${output.package}/${output.name})`;
+// };
 
 createCommand({
   name: "method",
@@ -98,18 +92,18 @@ createCommand({
         {
           data: { content: "Invalid interaction data" },
           type: InteractionResponseTypes.ChannelMessageWithSource,
-        },
+        }
       );
     }
 
     const inputPackage = interaction.data.options.find(
-      (x) => x.name === "package",
+      (x) => x.name === "package"
     )?.value as string;
 
     const docs = await getDocs(inputPackage);
 
     const inputMethod = interaction.data.options.find(
-      (x) => x.name === "method",
+      (x) => x.name === "method"
     )?.value as string;
 
     const method = searchMethod(inputMethod, docs);
@@ -127,10 +121,10 @@ createCommand({
               .setDescription(
                 responses[Math.floor(Math.random() * responses.length)]
                   .split("{word}")
-                  .join(inputMethod),
+                  .join(inputMethod)
               ),
           },
-        },
+        }
       );
     }
 
@@ -146,28 +140,21 @@ createCommand({
             .addField(
               "Parameters",
               method.signatures[0].parameters
-                .map(
-                  (x) =>
-                    `\`${x.name}\`:  ${
-                      x.type.kind === "reference"
-                        ? resolveReference(x.type)
-                        : "*" + x.type.type + "*"
-                    }`,
-                )
+                .map((x) => `\`${x.name}\`:  ${x.type.kind}`)
                 .join("\n"),
-              true,
-            )
-            .addField(
-              "Returns",
-              `*${
-                method.signatures[0].returnType.kind === "reference"
-                  ? resolveReference(method.signatures[0].returnType)
-                  : method.signatures[0].returnType.type
-              }*`,
-              true,
+              true
             ),
+          // .addField(
+          //   "Returns",
+          //   `*${
+          //     method.signatures[0].returnType.kind === "reference"
+          //       ? resolveReference(method.signatures[0].returnType)
+          //       : method.signatures[0].returnType.type
+          //   }*`,
+          //   true
+          // ),
         },
-      },
+      }
     );
   },
 });
