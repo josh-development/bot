@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3
 
       - name: Cache deno
-        uses: actions/cache@v2
+        uses: actions/cache@937d24475381cd9c75ae6db12cb4e79714b926ed # tag=v2
         with:
           key: ${{ runner.os }}-deno-${{ hashFiles('deps.ts') }}
           restore-keys: ${{ runner.os }}-deno-
