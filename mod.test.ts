@@ -1,10 +1,13 @@
-import { bot } from "./mod.ts";
-import { assertExists, delay } from "./deps.ts";
+import { assertExists, stopBot } from "./deps.ts";
+import { start } from "./mod.ts";
 
 Deno.test({
   name: "[main] connect to gateway",
   fn: async () => {
-    await delay(5000);
+    const bot = await start();
     assertExists(bot.id);
+    bot.rest.ratelimitedPaths.clear();
+    bot.rest.processRateLimitedPaths(bot.rest);
+    await stopBot(bot);
   },
 });

@@ -16,36 +16,44 @@ const log = logger({ name: "Main" });
 log.info("Starting Bot, this might take a while...");
 
 const paths = ["./src/events", "./src/commands"];
-await fastFileLoader(paths).catch((err) => {
-  log.fatal(`Unable to Import ${paths}`);
-  log.fatal(err);
-  Deno.exit(1);
-});
 
-log.info("Loaded all events and commands");
+export const start = async (sweep = false) => {
+  await fastFileLoader(paths).catch((err) => {
+    log.fatal(`Unable to Import ${paths}`);
+    log.fatal(err);
+    Deno.exit(1);
+  });
 
-export const bot = enableCachePlugin(
-  createBot({
-    token: BOT_TOKEN,
-    botId: BOT_ID,
-    intents: [],
-    events,
-  }),
-);
+  log.info("Loaded all events and commands");
 
-enableCacheSweepers(bot);
+  const bot = enableCachePlugin(
+    createBot({
+      token: BOT_TOKEN,
+      botId: BOT_ID,
+      intents: [],
+      events,
+    }),
+  );
 
-bot.gateway.presence = {
-  status: "online",
-  activities: [
-    {
-      name: "josh.evie.dev",
-      type: ActivityTypes.Watching,
-      createdAt: Date.now(),
-    },
-  ],
+  if (sweep) enableCacheSweepers(bot);
+
+  bot.gateway.presence = {
+    status: "online",
+    activities: [
+      {
+        name: "josh.evie.dev",
+        type: ActivityTypes.Watching,
+        createdAt: Date.now(),
+      },
+    ],
+  };
+
+  await startBot(bot);
+
+  await updateCommands(bot);
+  return bot;
 };
 
-await startBot(bot);
-
-await updateCommands(bot);
+if (import.meta.main) {
+  await start(true);
+}
