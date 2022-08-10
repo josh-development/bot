@@ -47,12 +47,12 @@ createCommand({
         {
           data: { content: "Invalid interaction data" },
           type: InteractionResponseTypes.ChannelMessageWithSource,
-        }
+        },
       );
     }
 
     const inputPackage = interaction.data.options.find(
-      (x) => x.name === "package"
+      (x) => x.name === "package",
     )?.value as string;
     const inputClass = interaction.data.options.find((x) => x.name === "class")
       ?.value as string;
@@ -86,13 +86,13 @@ createCommand({
         "Params",
         cls.construct.parameters
           .map((x) => `${x.name}: ${x.type.toString()}`)
-          .join(", ") ?? "No params"
+          .join(", ") ?? "No params",
       );
 
     if (cls.comment.example.length > 0) {
       embeds.addField(
         "Example",
-        cls.comment.example.map((x) => x.text).join("")
+        cls.comment.example.map((x) => x.text).join(""),
       );
     }
 
@@ -106,12 +106,12 @@ createCommand({
           components: new Components().addButton(
             "Source",
             "Link",
-            `https://josh.evie.dev/${cls.project.name.split("@joshdb/")[1]}/${
-              cls.name
-            }`
+            `https://josh.evie.dev/${
+              cls.project.name.split("@joshdb/")[1]
+            }/${cls.name}`,
           ),
         },
-      }
+      },
     );
   },
 });

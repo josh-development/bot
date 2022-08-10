@@ -23,7 +23,7 @@ createCommand({
         data: {
           content: `🏓 Pong! Ping ${ping}ms (${humanizeMilliseconds(ping)})`,
         },
-      }
+      },
     );
   },
 });

@@ -25,7 +25,7 @@ createCommand({
 Deno: ${denoVersion}
 Typescript: ${typescriptVersion}
 V8: ${v8Version}
-\`\`\``
+\`\`\``,
       )
       .setColor(BOT_COLOR)
       .setFooter(
@@ -33,8 +33,8 @@ V8: ${v8Version}
         bot.helpers.avatarURL(
           interaction.user.id,
           interaction.user.discriminator,
-          { avatar: interaction.user.avatar }
-        )
+          { avatar: interaction.user.avatar },
+        ),
       );
 
     await bot.helpers.sendInteractionResponse(
@@ -48,16 +48,16 @@ V8: ${v8Version}
             .addButton(
               "⭐ Github",
               "Link",
-              `https://github.com/josh-development/core`
+              `https://github.com/josh-development/core`,
             )
             .addButton("Website", "Link", `https://josh.evie.dev`)
             .addButton(
               "Invite",
               "Link",
-              `https://discord.com/api/oauth2/authorize?client_id=${bot.id}&permissions=8&scope=bot`
+              `https://discord.com/api/oauth2/authorize?client_id=${bot.id}&permissions=8&scope=bot`,
             ),
         },
-      }
+      },
     );
   },
 });

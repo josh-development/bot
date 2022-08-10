@@ -48,15 +48,15 @@ createCommand({
         {
           data: { content: "Invalid interaction data" },
           type: InteractionResponseTypes.ChannelMessageWithSource,
-        }
+        },
       );
     }
 
     const inputPackage = interaction.data.options.find(
-      (x) => x.name === "package"
+      (x) => x.name === "package",
     )?.value as string;
     const inputMethod = interaction.data.options.find(
-      (x) => x.name === "method"
+      (x) => x.name === "method",
     )?.value as string;
 
     let docs;
@@ -123,10 +123,10 @@ createCommand({
             "Link",
             `https://josh.evie.dev/${
               method.project.name.split("@joshdb/")[1]
-            }/${method.name}`
+            }/${method.name}`,
           ),
         },
-      }
+      },
     );
     return;
   },
