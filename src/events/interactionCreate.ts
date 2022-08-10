@@ -10,14 +10,14 @@ import {
   white,
   yellow,
 } from "../../deps.ts";
-import { events } from "./mod.ts";
-import { logger } from "../utils/logger.ts";
+import { Command, commands } from "../commands/mod.ts";
 import {
   getGuildFromId,
   isSubCommand,
   isSubCommandGroup,
 } from "../utils/helpers.ts";
-import { Command, commands } from "../commands/mod.ts";
+import { logger } from "../utils/logger.ts";
+import { events } from "./mod.ts";
 
 const log = logger({ name: "Event: InteractionCreate" });
 
@@ -33,7 +33,7 @@ events.interactionCreate = async (rawBot, interaction) => {
       const guildOrVoid = await getGuildFromId(bot, interaction.guildId).catch(
         (err) => {
           log.error(err);
-        }
+        },
       );
       if (guildOrVoid) {
         guild = guildOrVoid;
@@ -42,13 +42,13 @@ events.interactionCreate = async (rawBot, interaction) => {
     }
 
     log.info(
-      `[Command: ${bgYellow(black(String(interaction.data.name)))} - ${bgBlack(
-        white(`Trigger`)
-      )}] by ${interaction.user.username}#${
-        interaction.user.discriminator
-      } in ${guildName}${
+      `[Command: ${bgYellow(black(String(interaction.data.name)))} - ${
+        bgBlack(
+          white(`Trigger`),
+        )
+      }] by ${interaction.user.username}#${interaction.user.discriminator} in ${guildName}${
         guildName !== "Direct Message" ? ` (${guild.id})` : ``
-      }`
+      }`,
     );
 
     let command: undefined | Command = interaction.data.name
@@ -66,7 +66,7 @@ events.interactionCreate = async (rawBot, interaction) => {
 
             // Try to find the subcommand group
             const subCommandGroup = command.subcommands?.find(
-              (command) => command.name == interaction.data?.options?.[0].name
+              (command) => command.name == interaction.data?.options?.[0].name,
             );
             if (!subCommandGroup) return;
 
@@ -80,7 +80,7 @@ events.interactionCreate = async (rawBot, interaction) => {
 
             // Try to find the command
             command = subCommandGroup.subCommands.find(
-              (c) => c.name === targetCmdName
+              (c) => c.name === targetCmdName,
             );
 
             // Normal
@@ -92,7 +92,7 @@ events.interactionCreate = async (rawBot, interaction) => {
 
             // Try to find the command
             const found = command.subcommands.find(
-              (command) => command.name == interaction.data?.options?.[0].name
+              (command) => command.name == interaction.data?.options?.[0].name,
             );
             if (!found) return;
 
@@ -106,38 +106,44 @@ events.interactionCreate = async (rawBot, interaction) => {
           if (command) {
             command.execute(rawBot, interaction);
             log.info(
-              `[Command: ${bgYellow(
-                black(String(interaction.data.name))
-              )} - ${bgBlack(green(`Success`))}] by ${
-                interaction.user.username
-              }#${interaction.user.discriminator} in ${guildName}${
+              `[Command: ${
+                bgYellow(
+                  black(String(interaction.data.name)),
+                )
+              } - ${
+                bgBlack(green(`Success`))
+              }] by ${interaction.user.username}#${interaction.user.discriminator} in ${guildName}${
                 guildName !== "Direct Message" ? ` (${guild.id})` : ``
-              }`
+              }`,
             );
           } else {
             throw "";
           }
         } catch (err) {
           log.error(
-            `[Command: ${bgYellow(
-              black(String(interaction.data.name))
-            )} - ${bgBlack(red(`Error`))}] by ${interaction.user.username}#${
-              interaction.user.discriminator
-            } in ${guildName}${
+            `[Command: ${
+              bgYellow(
+                black(String(interaction.data.name)),
+              )
+            } - ${
+              bgBlack(red(`Error`))
+            }] by ${interaction.user.username}#${interaction.user.discriminator} in ${guildName}${
               guildName !== "Direct Message" ? ` (${guild.id})` : ``
-            }`
+            }`,
           );
           err.length ? log.error(err) : undefined;
         }
       } else {
         log.warn(
-          `[Command: ${bgYellow(
-            black(String(interaction.data.name))
-          )} - ${bgBlack(yellow(`Not Found`))}] by ${
-            interaction.user.username
-          }#${interaction.user.discriminator} in ${guildName}${
+          `[Command: ${
+            bgYellow(
+              black(String(interaction.data.name)),
+            )
+          } - ${
+            bgBlack(yellow(`Not Found`))
+          }] by ${interaction.user.username}#${interaction.user.discriminator} in ${guildName}${
             guildName !== "Direct Message" ? ` (${guild.id})` : ``
-          }`
+          }`,
         );
       }
     }

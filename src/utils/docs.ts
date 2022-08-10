@@ -42,7 +42,7 @@ export const getFiles = async () => {
     return filesCache.files;
   }
   const jsonResponse = await fetch(
-    `https://${GITHUB_TOKEN}@api.github.com/repos/josh-development/docs/contents`
+    `https://${GITHUB_TOKEN}@api.github.com/repos/josh-development/docs/contents`,
   );
   const jsonData = (await jsonResponse.json()) as File[];
   filesCache = { date: new Date(), files: jsonData };
@@ -64,7 +64,8 @@ export const getAllPackages = async () => {
 };
 
 export const getPackageDocs = async (path: string) => {
-  const url = `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`;
+  const url =
+    `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`;
   const jsonResponse = await fetch(url);
   const jsonData = (await jsonResponse.json()) as ProjectParser.JSON;
   return new ProjectParser(jsonData);
@@ -73,7 +74,7 @@ export const getPackageDocs = async (path: string) => {
 export const getAllDocs = async () => {
   const packages = await getPackages();
   let docs = await Promise.all(
-    packages.map(async (x) => await getPackageDocs(x.name))
+    packages.map(async (x) => await getPackageDocs(x.name)),
   );
   docs = [
     docs.find((x) => x.name === "@joshdb/core")!,
@@ -84,7 +85,7 @@ export const getAllDocs = async () => {
 
 export const searchMethod = (
   query: string,
-  docs: ProjectParser | { classes: ClassParser[] }
+  docs: ProjectParser | { classes: ClassParser[] },
 ) => {
   for (const cls of docs.classes) {
     for (const method of cls.methods) {
@@ -98,7 +99,7 @@ export const searchMethod = (
 
 export const searchClass = (
   query: string,
-  docs: ProjectParser | { classes: ClassParser[] }
+  docs: ProjectParser | { classes: ClassParser[] },
 ) => {
   for (const cls of docs.classes) {
     if (cls.name.toLowerCase() === query.toLowerCase()) {

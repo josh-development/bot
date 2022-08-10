@@ -22,7 +22,7 @@ export class Components extends Array<ActionRow> {
     label: string,
     style: keyof typeof ButtonStyles,
     customIdOrLink: string,
-    options?: { emoji?: string | bigint; disabled?: boolean }
+    options?: { emoji?: string | bigint; disabled?: boolean },
   ) {
     // No Action Row has been created so do it
     if (!this.length) this.addActionRow();

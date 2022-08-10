@@ -10,5 +10,5 @@
     "source.fixAll.eslint": true,
     "source.organizeImports": true
   },
-  "files.eol": "\n",
+  "files.eol": "\n"
 }
