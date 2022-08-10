@@ -3,6 +3,7 @@ import {
   ApplicationCommandTypes,
   InteractionResponseTypes,
 } from "../../deps.ts";
+import { Components } from "../utils/component.ts";
 import { Embeds } from "../utils/embed.ts";
 import { createCommand } from "./mod.ts";
 
@@ -43,6 +44,18 @@ V8: ${v8Version}
         type: InteractionResponseTypes.ChannelMessageWithSource,
         data: {
           embeds,
+          components: new Components()
+            .addButton(
+              "⭐ Github",
+              "Link",
+              `https://github.com/josh-development/core`
+            )
+            .addButton("Website", "Link", `https://josh.evie.dev`)
+            .addButton(
+              "Invite",
+              "Link",
+              `https://discord.com/api/oauth2/authorize?client_id=${bot.id}&permissions=8&scope=bot`
+            ),
         },
       }
     );
