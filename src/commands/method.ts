@@ -13,10 +13,10 @@ import {
   getAllPackages,
   getDocs,
   resolveType,
-  responses,
   searchMethod,
 } from "../utils/docs.ts";
 import { Embeds } from "../utils/embed.ts";
+import { notFound } from "../utils/notFound.ts";
 
 const packages = await getAllPackages();
 
@@ -48,15 +48,15 @@ createCommand({
         {
           data: { content: "Invalid interaction data" },
           type: InteractionResponseTypes.ChannelMessageWithSource,
-        },
+        }
       );
     }
 
     const inputPackage = interaction.data.options.find(
-      (x) => x.name === "package",
+      (x) => x.name === "package"
     )?.value as string;
     const inputMethod = interaction.data.options.find(
-      (x) => x.name === "method",
+      (x) => x.name === "method"
     )?.value as string;
 
     let docs;
@@ -77,23 +77,7 @@ createCommand({
     }
 
     if (!method) {
-      return await bot.helpers.sendInteractionResponse(
-        interaction.id,
-        interaction.token,
-        {
-          type: InteractionResponseTypes.ChannelMessageWithSource,
-          data: {
-            embeds: new Embeds(bot)
-              .setTitle("Method not found")
-              .setColor(BOT_COLOR)
-              .setDescription(
-                responses[Math.floor(Math.random() * responses.length)]
-                  .split("{word}")
-                  .join(inputMethod),
-              ),
-          },
-        },
-      );
+      return notFound(bot, interaction, "Method", inputMethod);
     }
 
     const embeds: Embeds = new Embeds(bot);
@@ -127,8 +111,7 @@ createCommand({
       }
       embeds.addEmbed(embed);
     }
-
-    return bot.helpers.sendInteractionResponse(
+    await bot.helpers.sendInteractionResponse(
       interaction.id,
       interaction.token,
       {
@@ -140,10 +123,11 @@ createCommand({
             "Link",
             `https://josh.evie.dev/${
               method.project.name.split("@joshdb/")[1]
-            }/${method.name}`,
+            }/${method.name}`
           ),
         },
-      },
+      }
     );
+    return;
   },
 });

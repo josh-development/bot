@@ -12,10 +12,10 @@ import {
   getAllDocs,
   getAllPackages,
   getDocs,
-  responses,
   searchClass,
 } from "../utils/docs.ts";
 import { Embeds } from "../utils/embed.ts";
+import { notFound } from "../utils/notFound.ts";
 
 const packages = await getAllPackages();
 
@@ -47,12 +47,12 @@ createCommand({
         {
           data: { content: "Invalid interaction data" },
           type: InteractionResponseTypes.ChannelMessageWithSource,
-        },
+        }
       );
     }
 
     const inputPackage = interaction.data.options.find(
-      (x) => x.name === "package",
+      (x) => x.name === "package"
     )?.value as string;
     const inputClass = interaction.data.options.find((x) => x.name === "class")
       ?.value as string;
@@ -75,23 +75,7 @@ createCommand({
     }
 
     if (!cls) {
-      return await bot.helpers.sendInteractionResponse(
-        interaction.id,
-        interaction.token,
-        {
-          type: InteractionResponseTypes.ChannelMessageWithSource,
-          data: {
-            embeds: new Embeds(bot)
-              .setTitle("Method not found")
-              .setColor(BOT_COLOR)
-              .setDescription(
-                responses[Math.floor(Math.random() * responses.length)]
-                  .split("{word}")
-                  .join(inputClass),
-              ),
-          },
-        },
-      );
+      return notFound(bot, interaction, "Class", inputClass);
     }
 
     const embeds: Embeds = new Embeds(bot)
@@ -102,13 +86,13 @@ createCommand({
         "Params",
         cls.construct.parameters
           .map((x) => `${x.name}: ${x.type.toString()}`)
-          .join(", ") ?? "No params",
+          .join(", ") ?? "No params"
       );
 
     if (cls.comment.example.length > 0) {
       embeds.addField(
         "Example",
-        cls.comment.example.map((x) => x.text).join(""),
+        cls.comment.example.map((x) => x.text).join("")
       );
     }
 
@@ -122,12 +106,12 @@ createCommand({
           components: new Components().addButton(
             "Source",
             "Link",
-            `https://josh.evie.dev/${
-              cls.project.name.split("@joshdb/")[1]
-            }/${cls.name}`,
+            `https://josh.evie.dev/${cls.project.name.split("@joshdb/")[1]}/${
+              cls.name
+            }`
           ),
         },
-      },
+      }
     );
   },
 });

@@ -25,12 +25,6 @@ export const resolveType = (type: TypeParser) => {
   return type.toString();
 };
 
-export const responses = [
-  "The hell you think this is, the dictionary? I don't know everything, and certainly not `{word}`!",
-  "`{word}`? `{word}`???? Since when was *that* a josh feature?",
-  "I'll have you know, punk, that I only do Josh, and `{word}` is definitely not a method in josh!",
-];
-
 let filesCache: { date?: Date; files: File[] };
 
 export const getFiles = async () => {
@@ -42,15 +36,25 @@ export const getFiles = async () => {
     return filesCache.files;
   }
   const jsonResponse = await fetch(
-    `https://${GITHUB_TOKEN}@api.github.com/repos/josh-development/docs/contents`,
+    `https://${GITHUB_TOKEN}@api.github.com/repos/josh-development/docs/contents`
   );
   const jsonData = (await jsonResponse.json()) as File[];
   filesCache = { date: new Date(), files: jsonData };
   return jsonData;
 };
 
+let packagesCache: { date: Date; packages: File[] } | undefined;
+
 export const getPackages = async () => {
+  if (
+    packagesCache &&
+    new Date().getTime() - packagesCache.date.getTime() < 1000 * 60 * 60
+  ) {
+    return packagesCache.packages;
+  }
+
   const packages = (await getFiles()).filter((x) => x.type === "dir");
+  packagesCache = { date: new Date(), packages };
   return packages;
 };
 
@@ -64,8 +68,7 @@ export const getAllPackages = async () => {
 };
 
 export const getPackageDocs = async (path: string) => {
-  const url =
-    `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`;
+  const url = `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`;
   const jsonResponse = await fetch(url);
   const jsonData = (await jsonResponse.json()) as ProjectParser.JSON;
   return new ProjectParser(jsonData);
@@ -74,7 +77,7 @@ export const getPackageDocs = async (path: string) => {
 export const getAllDocs = async () => {
   const packages = await getPackages();
   let docs = await Promise.all(
-    packages.map(async (x) => await getPackageDocs(x.name)),
+    packages.map(async (x) => await getDocs(x.name))
   );
   docs = [
     docs.find((x) => x.name === "@joshdb/core")!,
@@ -85,7 +88,7 @@ export const getAllDocs = async () => {
 
 export const searchMethod = (
   query: string,
-  docs: ProjectParser | { classes: ClassParser[] },
+  docs: ProjectParser | { classes: ClassParser[] }
 ) => {
   for (const cls of docs.classes) {
     for (const method of cls.methods) {
@@ -99,7 +102,7 @@ export const searchMethod = (
 
 export const searchClass = (
   query: string,
-  docs: ProjectParser | { classes: ClassParser[] },
+  docs: ProjectParser | { classes: ClassParser[] }
 ) => {
   for (const cls of docs.classes) {
     if (cls.name.toLowerCase() === query.toLowerCase()) {
@@ -118,26 +121,3 @@ export const getDocs = async (packageName = "core") => {
   docsCache[packageName] = { docs, date: new Date() };
   return docs;
 };
-
-// export const getAllDocs = async () => {
-//   const packages = await getPackages();
-//   const docs: Docs[] = [];
-//   for (const packageName of packages) {
-//     const doc = await getDocs(packageName.name);
-//     docs.push(doc);
-//   }
-//   return docs;
-// };
-
-// export const convertMethodToEmbed = (
-//   bot: Bot,
-//   method: ClassMethodParser.JSON
-// ) => {
-//   return new Embeds(bot).addField(
-//     "Params",
-//     method.signatures[0].parameters
-//       .map((x) => `${x.name}: ${x.type.name}`)
-//       .join(", "),
-//     true
-//   );
-// };
