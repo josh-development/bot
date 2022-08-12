@@ -8,9 +8,9 @@ import {
   MakeRequired,
   upsertApplicationCommands,
 } from "../../deps.ts";
-import { logger } from "./logger.ts";
-import { commands } from "../commands/mod.ts";
 import type { subCommand, subCommandGroup } from "../commands/mod.ts";
+import { commands } from "../commands/mod.ts";
+import { logger } from "./logger.ts";
 
 const log = logger({ name: "Helpers" });
 

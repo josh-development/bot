@@ -1,312 +1,113 @@
-// deno-lint-ignore-file no-explicit-any
-import type { Bot } from "../../deps.ts";
 import { GITHUB_TOKEN } from "../../config.ts";
-import { Embeds } from "./embed.ts";
 
-export const docsCache: { [key: string]: { docs: Docs; date: Date } } = {};
+import {
+  ClassParser,
+  ProjectParser,
+  ReferenceTypeParser,
+  TypeParser,
+} from "../../deps.ts";
 
-interface File {
-  name: string;
-  path: string;
-  sha: string;
-  size: number;
-  url: string;
-  html_url: string;
-  git_url: string;
-  download_url?: string;
-  type: string;
-  _links: {
-    self: string;
-    git: string;
-    html: string;
-  };
-}
+export const docsCache: { [key: string]: { docs: ProjectParser; date: Date } } =
+  {};
 
-export interface DocsClassMethodParameter {
-  id: number;
-  name: string;
-  type: {
-    kind: string;
-    id?: number;
-    type: string;
-    name: string;
-    packageName: string;
-    typeArguments: Array<{
-      kind: string;
-      id: number;
-      name: string;
-      packageName?: string;
-      typeArguments: Array<any>;
-    }>;
-  };
-}
+export const resolveReferenceType = (type: ReferenceTypeParser) => {
+  const { packageName, name } = type;
+  return `[${name}](https://josh.evie.dev/${
+    (packageName || "core")?.split("@joshdb/")[1]
+  }/${name})`;
+};
 
-interface DocClassMethod {
-  id: number;
-  name: string;
-  comment: {
-    description: any;
-    blockTags: Array<any>;
-    modifierTags: Array<any>;
-  };
-  source: {
-    line: number;
-    file: string;
-    path: string;
-  };
-  accessibility: string;
-  abstract: boolean;
-  static: boolean;
-  signatures: Array<{
-    id: number;
-    name: string;
-    typeParameters: Array<{
-      id: number;
-      name: string;
-      type?: {
-        kind: string;
-        id: any;
-        name: string;
-        packageName: string;
-        typeArguments: Array<any>;
-      };
-      default?: {
-        kind: string;
-        id: number;
-        name: string;
-        packageName: any;
-        typeArguments: Array<any>;
-      };
-    }>;
-    parameters: DocsClassMethodParameter[];
-    returnType: {
-      kind: string;
-      id: any;
-      name: string;
-      packageName: string;
-      typeArguments: Array<{
-        kind: string;
-        id?: number;
-        name: string;
-        packageName?: string;
-        typeArguments: Array<{
-          kind: string;
-          id: number;
-          name: string;
-          packageName: string;
-          typeArguments: Array<any>;
-        }>;
-      }>;
-      type?: string;
-    };
-  }>;
-}
+export const resolveType = (type: TypeParser) => {
+  if (type instanceof ReferenceTypeParser) {
+    return resolveReferenceType(type);
+  }
 
-interface DocClass {
-  id: number;
-  name: string;
-  comment: {
-    description: any;
-    blockTags: Array<any>;
-    modifierTags: Array<any>;
-  };
-  source: {
-    line: number;
-    file: string;
-    path: string;
-  };
-  external: boolean;
-  abstract: boolean;
-  extendsType: {
-    kind: string;
-    id: any;
-    name: string;
-    packageName: string;
-    typeArguments: Array<{
-      kind: string;
-      id: number;
-      name: string;
-      packageName: any;
-      typeArguments: Array<{
-        kind: string;
-        id: number;
-        name: string;
-        packageName: any;
-        typeArguments: Array<any>;
-      }>;
-    }>;
-  };
-  implementsType: Array<any>;
-  construct: {
-    id: number;
-    name: string;
-    comment: {
-      description: any;
-      blockTags: Array<any>;
-      modifierTags: Array<any>;
-    };
-    source: {
-      line: number;
-      file: string;
-      path: string;
-    };
-    parameters: Array<{
-      id: number;
-      name: string;
-      type: {
-        kind: string;
-        id?: number;
-        name: string;
-        packageName?: string;
-        typeArguments: Array<{
-          kind: string;
-          id?: number;
-          name: string;
-          packageName?: string;
-          typeArguments: Array<any>;
-        }>;
-      };
-    }>;
-  };
-  properties: Array<{
-    id: number;
-    name: string;
-    comment: {
-      description?: string;
-      blockTags: Array<{
-        name: string;
-        text: string;
-      }>;
-      modifierTags: Array<any>;
-    };
-    source: {
-      line: number;
-      file: string;
-      path: string;
-    };
-    accessibility: string;
-    abstract: boolean;
-    static: boolean;
-    readonly: boolean;
-    optional: boolean;
-    type: {
-      kind: string;
-      id?: number;
-      name?: string;
-      packageName?: string;
-      typeArguments?: Array<{
-        kind: string;
-        id?: number;
-        name: string;
-        packageName?: string;
-        typeArguments: Array<any>;
-      }>;
-      type?: string;
-    };
-  }>;
-  methods: Array<DocClassMethod>;
-}
+  return type.toString();
+};
 
-export interface Docs {
-  id: number;
-  name: string;
-  classes: DocClass[];
-  constants: Array<any>;
-  enums: Array<any>;
-  functions: Array<any>;
-  interfaces: Array<any>;
-  namespaces: Array<{
-    id: number;
-    name: string;
-    comment: {
-      description: any;
-      blockTags: Array<any>;
-      modifierTags: Array<any>;
-    };
-    source: {
-      line: number;
-      file: string;
-      path: string;
-    };
-    external: boolean;
-    classes: Array<any>;
-    constants: Array<any>;
-    enums: Array<any>;
-    functions: Array<any>;
-    interfaces: Array<{
-      id: number;
-      name: string;
-      comment: {
-        description: any;
-        blockTags: Array<any>;
-        modifierTags: Array<any>;
-      };
-      source: {
-        line: number;
-        file: string;
-        path: string;
-      };
-      external: boolean;
-      properties: Array<{
-        id: number;
-        name: string;
-        comment: {
-          description: string;
-          blockTags: Array<{
-            name: string;
-            text: string;
-          }>;
-          modifierTags: Array<any>;
-        };
-        source: {
-          line: number;
-          file: string;
-          path: string;
-        };
-        readonly: boolean;
-        type: {
-          kind: string;
-          id?: number;
-          name?: string;
-          packageName: any;
-          typeArguments?: Array<any>;
-          type?: string;
-        };
-      }>;
-    }>;
-    namespaces: Array<any>;
-    typeAliases: Array<any>;
-  }>;
-  typeAliases: Array<any>;
-}
+let filesCache: { date?: Date; files: File[] };
 
 export const getFiles = async () => {
+  if (
+    filesCache &&
+    filesCache.date &&
+    new Date().getTime() - filesCache.date.getTime() > 1000 * 60 * 60
+  ) {
+    return filesCache.files;
+  }
   const jsonResponse = await fetch(
     `https://${GITHUB_TOKEN}@api.github.com/repos/josh-development/docs/contents`,
   );
   const jsonData = (await jsonResponse.json()) as File[];
+  filesCache = { date: new Date(), files: jsonData };
   return jsonData;
 };
 
+let packagesCache: { date: Date; packages: File[] } | undefined;
+
 export const getPackages = async () => {
+  if (
+    packagesCache &&
+    new Date().getTime() - packagesCache.date.getTime() < 1000 * 60 * 60
+  ) {
+    return packagesCache.packages;
+  }
+
   const packages = (await getFiles()).filter((x) => x.type === "dir");
+  packagesCache = { date: new Date(), packages };
   return packages;
 };
 
-export const getPackageDocs = async (path: string) => {
-  const jsonResponse = await fetch(
-    `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`,
-  );
-  const jsonData = (await jsonResponse.json()) as Docs;
-  return jsonData;
+export const getAllPackages = async () => {
+  const names = (await getPackages()).map((x) => ({
+    name: x.name,
+    value: x.name,
+  }));
+  names.push({ name: "all", value: "all" });
+  return names;
 };
 
-export const searchMethod = (query: string, docs: Docs) => {
+export const getPackageDocs = async (path: string) => {
+  const url =
+    `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`;
+  const jsonResponse = await fetch(url);
+  const jsonData = (await jsonResponse.json()) as ProjectParser.JSON;
+  return new ProjectParser(jsonData);
+};
+
+export const getAllDocs = async () => {
+  const packages = await getPackages();
+  let docs = await Promise.all(
+    packages.map(async (x) => await getDocs(x.name)),
+  );
+  docs = [
+    docs.find((x) => x.name === "@joshdb/core")!,
+    ...docs.filter((x) => x.name !== "@joshdb/core"),
+  ];
+  return docs;
+};
+
+export const searchMethod = (
+  query: string,
+  docs: ProjectParser | { classes: ClassParser[] },
+) => {
   for (const cls of docs.classes) {
     for (const method of cls.methods) {
-      if (method.name.toLowerCase().includes(query.toLowerCase())) {
+      if (method.name.toLowerCase() === query.toLowerCase()) {
         return method;
       }
+    }
+  }
+  return;
+};
+
+export const searchClass = (
+  query: string,
+  docs: ProjectParser | { classes: ClassParser[] },
+) => {
+  for (const cls of docs.classes) {
+    if (cls.name.toLowerCase() === query.toLowerCase()) {
+      return cls;
     }
   }
   return;
@@ -320,24 +121,4 @@ export const getDocs = async (packageName = "core") => {
   const docs = await getPackageDocs(packageName);
   docsCache[packageName] = { docs, date: new Date() };
   return docs;
-};
-
-// export const getAllDocs = async () => {
-//   const packages = await getPackages();
-//   const docs: Docs[] = [];
-//   for (const packageName of packages) {
-//     const doc = await getDocs(packageName.name);
-//     docs.push(doc);
-//   }
-//   return docs;
-// };
-
-export const convertMethodToEmbed = (bot: Bot, method: DocClassMethod) => {
-  return new Embeds(bot).addField(
-    "Params",
-    method.signatures[0].parameters
-      .map((x) => `${x.name}: ${x.type.name}`)
-      .join(", "),
-    true,
-  );
 };

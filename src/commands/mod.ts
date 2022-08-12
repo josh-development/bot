@@ -1,10 +1,13 @@
 import {
   ApplicationCommandOption,
   ApplicationCommandTypes,
+  bgYellow,
+  black,
   Bot,
   Collection,
   Interaction,
 } from "../../deps.ts";
+import { log } from "../utils/logger.ts";
 
 export type subCommand = Omit<Command, "subcommands">;
 export type subCommandGroup = {
@@ -27,4 +30,5 @@ export const commands = new Collection<string, Command>();
 
 export function createCommand(command: Command) {
   commands.set(command.name, command);
+  log.info("Created command: " + bgYellow(black(command.name)));
 }
