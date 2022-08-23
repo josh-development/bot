@@ -6,8 +6,9 @@ Deno.test({
   fn: async () => {
     const bot = await start();
     assertExists(bot.id);
-    bot.rest.rateLimitedPaths.clear();
-    bot.rest.processRateLimitedPaths(bot.rest);
     await stopBot(bot);
   },
+  sanitizeResources: false,
+  sanitizeOps: false,
+  // why? because there's lots of leftover intervals that discordeno has yet to finish adding a cleanup to
 });
