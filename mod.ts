@@ -33,7 +33,7 @@ export const start = async (sweep = false) => {
       botId: BOT_ID,
       intents: GatewayIntents.Guilds,
       events,
-    })
+    }),
   );
 
   if (sweep) enableCacheSweepers(bot);

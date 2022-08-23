@@ -99,8 +99,8 @@ export async function getGuildFromId(
     }
 
     await getGuild(bot, guildId).then((guild) => {
-      bot.guilds.set(guildId, guild);
-      returnValue = guild;
+      bot.guilds.set(guildId, guild!);
+      returnValue = guild!;
     });
   }
 
