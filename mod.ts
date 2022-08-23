@@ -5,6 +5,7 @@ import {
   enableCachePlugin,
   enableCacheSweepers,
   fastFileLoader,
+  GatewayIntents,
   startBot,
 } from "./deps.ts";
 import { events } from "./src/events/mod.ts";
@@ -30,22 +31,25 @@ export const start = async (sweep = false) => {
     createBot({
       token: BOT_TOKEN,
       botId: BOT_ID,
-      intents: [],
+      intents: GatewayIntents.Guilds,
       events,
-    }),
+    })
   );
 
   if (sweep) enableCacheSweepers(bot);
 
-  bot.gateway.presence = {
-    status: "online",
-    activities: [
-      {
-        name: "josh.evie.dev",
-        type: ActivityTypes.Watching,
-        createdAt: Date.now(),
-      },
-    ],
+  bot.gateway.manager.createShardOptions.makePresence = (shardId: number) => {
+    return {
+      shardId: shardId,
+      status: "online",
+      activities: [
+        {
+          name: "josh.evie.dev",
+          type: ActivityTypes.Watching,
+          createdAt: Date.now(),
+        },
+      ],
+    };
   };
 
   await startBot(bot);

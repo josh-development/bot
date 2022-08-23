@@ -6,7 +6,7 @@ Deno.test({
   fn: async () => {
     const bot = await start();
     assertExists(bot.id);
-    bot.rest.ratelimitedPaths.clear();
+    bot.rest.rateLimitedPaths.clear();
     bot.rest.processRateLimitedPaths(bot.rest);
     await stopBot(bot);
   },
