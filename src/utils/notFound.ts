@@ -9,8 +9,7 @@ import { Embeds } from "./embed.ts";
 
 export const responses = [
   {
-    text:
-      "The hell you think this is, the dictionary? I don't know everything, and certainly not `{word}`!",
+    text: "The hell you think this is, the dictionary? I don't know everything, and certainly not `{word}`!",
     user: 139412744439988224n,
   },
   {
@@ -18,12 +17,11 @@ export const responses = [
     user: 139412744439988224n,
   },
   {
-    text:
-      "I'll have you know, punk, that I only do Josh, and `{word}` is definitely not a method in josh!",
+    text: "I'll have you know, punk, that I only do Josh, and `{word}` is definitely not a part of josh!",
     user: 139412744439988224n,
   },
   {
-    text: "Bruh, `{word}` is not a method in josh lmao",
+    text: "Bruh, `{word}` is not in josh lmao",
     user: 709674034798788618n,
   },
   {
@@ -44,7 +42,7 @@ export const notFound = async (
   bot: Bot,
   interaction: Interaction,
   name: string,
-  input: string,
+  input: string
 ) => {
   const res = randomResponse();
   const evie: User = await bot.helpers.getUser(res.user);
@@ -62,9 +60,9 @@ export const notFound = async (
             evie.username + "#" + evie.discriminator,
             bot.helpers.avatarURL(evie.id, evie.discriminator, {
               avatar: evie.avatar,
-            }),
+            })
           ),
       },
-    },
+    }
   );
 };

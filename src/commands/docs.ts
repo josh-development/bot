@@ -1,7 +1,9 @@
 import {
   ApplicationCommandOptionTypes,
   ApplicationCommandTypes,
+  ClassMethodParser,
   ClassParser,
+  EnumParser,
   InteractionResponseTypes,
 } from "../../deps.ts";
 import { Components } from "../utils/component.ts";
@@ -11,22 +13,26 @@ import {
   getAllDocs,
   getAllPackages,
   getDocs,
-  searchClass,
+  searchEverything,
 } from "../utils/docs.ts";
-import { createClassEmbed } from "../utils/joshEmbeds.ts";
+import {
+  createClassEmbed,
+  createEnumEmbed,
+  createMethodEmbed,
+} from "../utils/joshEmbeds.ts";
 import { notFound } from "../utils/notFound.ts";
 
 const packages = await getAllPackages();
 
 createCommand({
-  name: "class",
-  description: "Get documentation of JoshDB regarding a specific class",
+  name: "docs",
+  description: "Get documentation of JoshDB",
   type: ApplicationCommandTypes.ChatInput,
   scope: "Global",
   options: [
     {
-      name: "class",
-      description: "Class name",
+      name: "name",
+      description: "Name to search for",
       type: ApplicationCommandOptionTypes.String,
       required: true,
     },
@@ -53,33 +59,44 @@ createCommand({
     const inputPackage = interaction.data.options.find(
       (x) => x.name === "package"
     )?.value as string;
-    const inputClass = interaction.data.options.find((x) => x.name === "class")
+    const inputName = interaction.data.options.find((x) => x.name === "name")
       ?.value as string;
 
     let docs;
-    let cls;
+    let name;
 
     if (!inputPackage || inputPackage === "all") {
       docs = await getAllDocs();
-      let all: ClassParser[] = [];
-      for (const doc of docs) {
-        all = [...all, ...doc.classes];
-      }
-      cls = searchClass(inputClass, {
-        classes: all,
-      });
+
+      name = searchEverything(inputName, docs);
     } else {
       docs = await getDocs(inputPackage);
-      cls = searchClass(inputClass, docs);
+      name = searchEverything(inputName, [docs]);
     }
 
-    if (!cls) {
-      return notFound(bot, interaction, "Class", inputClass);
+    if (!name) {
+      return notFound(bot, interaction, "Input", inputName);
     }
 
-    const embeds = createClassEmbed(bot, cls);
+    let embeds;
 
-    return bot.helpers.sendInteractionResponse(
+    if (name instanceof ClassParser) {
+      embeds = createClassEmbed(bot, name);
+    }
+
+    if (name instanceof ClassMethodParser) {
+      embeds = createMethodEmbed(bot, name);
+    }
+
+    if (name instanceof EnumParser) {
+      embeds = createEnumEmbed(bot, name);
+    }
+
+    if (!embeds) {
+      return notFound(bot, interaction, "Type", inputName); // Shouldn't happen...
+    }
+
+    await bot.helpers.sendInteractionResponse(
       interaction.id,
       interaction.token,
       {
@@ -89,10 +106,11 @@ createCommand({
           components: new Components().addButton(
             "Source",
             "Link",
-            cls.source?.url || "https://josh.evie.dev"
+            name.source?.url || "https://josh.evie.dev"
           ),
         },
       }
     );
+    return;
   },
 });
