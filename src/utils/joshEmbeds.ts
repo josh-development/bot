@@ -17,7 +17,7 @@ export const createClassEmbed = (bot: Bot, cls: ClassParser) => {
       "Params",
       cls.construct.parameters
         .map((x) => `\`${x.name}\`: ${x.type.toString()}`)
-        .join("\n") ?? "No params"
+        .join("\n") ?? "No params",
     );
 
   if (cls.comment.example.length > 0) {
@@ -70,7 +70,7 @@ export const createEnumEmbed = (bot: Bot, enu: EnumParser) => {
     .setTitle(enu.name)
     .addField(
       "Values",
-      enu.properties.map((x) => "`" + x.name + "`").join(" ")
+      enu.properties.map((x) => "`" + x.name + "`").join(" "),
     );
 
   if (enu.comment.example.length > 0) {

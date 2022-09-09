@@ -46,15 +46,15 @@ createCommand({
         {
           data: { content: "Invalid interaction data" },
           type: InteractionResponseTypes.ChannelMessageWithSource,
-        }
+        },
       );
     }
 
     const inputPackage = interaction.data.options.find(
-      (x) => x.name === "package"
+      (x) => x.name === "package",
     )?.value as string;
     const inputMethod = interaction.data.options.find(
-      (x) => x.name === "method"
+      (x) => x.name === "method",
     )?.value as string;
 
     let docs;
@@ -90,10 +90,10 @@ createCommand({
           components: new Components().addButton(
             "Source",
             "Link",
-            method.source?.url || "https://josh.evie.dev"
+            method.source?.url || "https://josh.evie.dev",
           ),
         },
-      }
+      },
     );
     return;
   },

@@ -60,7 +60,7 @@ export const getFiles = async (url?: string) => {
   const jsonResponse = await fetch(
     url
       ? `https://${GITHUB_TOKEN}@${url.split("https://")[1]}`
-      : `https://${GITHUB_TOKEN}@api.github.com/repos/josh-development/docs/contents`
+      : `https://${GITHUB_TOKEN}@api.github.com/repos/josh-development/docs/contents`,
   );
   const jsonData = (await jsonResponse.json()) as File[];
   filesCache = { date: new Date(), files: jsonData };
@@ -105,8 +105,8 @@ export const getAllPackages = async () => {
 };
 
 export const getPackageDocs = async (path: string) => {
-  console.log(path);
-  const url = `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`;
+  const url =
+    `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`;
   const jsonResponse = await fetch(url);
   if (jsonResponse.status !== 200) {
     throw new Error("Package not found");
@@ -118,7 +118,7 @@ export const getPackageDocs = async (path: string) => {
 export const getAllDocs = async () => {
   const packages = await getPackages();
   let docs = await Promise.all(
-    packages.map(async (x) => await getDocs(x.path))
+    packages.map(async (x) => await getDocs(x.path)),
   );
   docs = [
     docs.find((x) => x.name === "@joshdb/core")!,
@@ -129,7 +129,7 @@ export const getAllDocs = async () => {
 
 export const searchMethod = (
   query: string,
-  docs: ProjectParser | { classes: ClassParser[] }
+  docs: ProjectParser | { classes: ClassParser[] },
 ) => {
   for (const cls of docs.classes) {
     for (const method of cls.methods) {
@@ -153,8 +153,9 @@ export function searchEverything(query: string, docs: ProjectParser[]) {
   for (const doc of docs) {
     let input: (ClassParser | ClassMethodParser | EnumParser)[] = [];
     if (doc.classes) input = [...input, ...doc.classes];
-    if (doc.classes)
+    if (doc.classes) {
       input = [...input, ...doc.classes.flatMap((x) => x.methods)];
+    }
     if (doc.enums) input = [...input, ...doc.enums];
 
     const fuse = new Fuse(input, opts);
@@ -171,7 +172,7 @@ export function searchEverything(query: string, docs: ProjectParser[]) {
 
 export const searchClass = (
   query: string,
-  docs: ProjectParser | { classes: ClassParser[] }
+  docs: ProjectParser | { classes: ClassParser[] },
 ) => {
   for (const cls of docs.classes) {
     if (cls.name.toLowerCase() === query.toLowerCase()) {

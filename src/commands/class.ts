@@ -46,12 +46,12 @@ createCommand({
         {
           data: { content: "Invalid interaction data" },
           type: InteractionResponseTypes.ChannelMessageWithSource,
-        }
+        },
       );
     }
 
     const inputPackage = interaction.data.options.find(
-      (x) => x.name === "package"
+      (x) => x.name === "package",
     )?.value as string;
     const inputClass = interaction.data.options.find((x) => x.name === "class")
       ?.value as string;
@@ -89,10 +89,10 @@ createCommand({
           components: new Components().addButton(
             "Source",
             "Link",
-            cls.source?.url || "https://josh.evie.dev"
+            cls.source?.url || "https://josh.evie.dev",
           ),
         },
-      }
+      },
     );
   },
 });
