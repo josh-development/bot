@@ -30,8 +30,11 @@ export const createMethodEmbed = (bot: Bot, method: ClassMethodParser) => {
   const embeds: Embeds = new Embeds(bot);
 
   for (const sig of method.signatures) {
+    const cls = sig.project.classes.find((x) =>
+      x.methods.find((x) => x.id === method.id)
+    );
     const embed = {
-      title: `Josh.${sig.name}()`,
+      title: `${cls ? cls.name : "Josh"}.${sig.name}()`,
       color: BOT_COLOR,
       description: sig.comment.description ?? undefined,
       fields: [

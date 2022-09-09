@@ -98,15 +98,19 @@ export const getPackages = async () => {
 export const getAllPackages = async () => {
   const names = (await getPackages()).map((x) => ({
     name: x.name,
-    value: x.name,
+    value: x.path,
   }));
   names.push({ name: "all", value: "all" });
   return names;
 };
 
 export const getPackageDocs = async (path: string) => {
+  console.log(path);
   const url = `https://${GITHUB_TOKEN}@raw.githubusercontent.com/josh-development/docs/main/${path}/main.json`;
   const jsonResponse = await fetch(url);
+  if (jsonResponse.status !== 200) {
+    throw new Error("Package not found");
+  }
   const jsonData = (await jsonResponse.json()) as ProjectParser.JSON;
   return new ProjectParser({ data: jsonData });
 };
