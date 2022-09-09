@@ -1,7 +1,9 @@
 import {
   ApplicationCommandOptionTypes,
   ApplicationCommandTypes,
+  ClassMethodParser,
   ClassParser,
+  EnumParser,
   InteractionResponseTypes,
 } from "../../deps.ts";
 import { Components } from "../utils/component.ts";
@@ -11,22 +13,26 @@ import {
   getAllDocs,
   getAllPackages,
   getDocs,
-  searchMethod,
+  searchEverything,
 } from "../utils/docs.ts";
-import { createMethodEmbed } from "../utils/joshEmbeds.ts";
+import {
+  createClassEmbed,
+  createEnumEmbed,
+  createMethodEmbed,
+} from "../utils/joshEmbeds.ts";
 import { notFound } from "../utils/notFound.ts";
 
 const packages = await getAllPackages();
 
 createCommand({
-  name: "method",
-  description: "Get documentation of JoshDB regarding a specific method",
+  name: "docs",
+  description: "Get documentation of JoshDB",
   type: ApplicationCommandTypes.ChatInput,
   scope: "Global",
   options: [
     {
-      name: "method",
-      description: "Method name",
+      name: "name",
+      description: "Name to search for",
       type: ApplicationCommandOptionTypes.String,
       required: true,
     },
@@ -53,32 +59,42 @@ createCommand({
     const inputPackage = interaction.data.options.find(
       (x) => x.name === "package",
     )?.value as string;
-    const inputMethod = interaction.data.options.find(
-      (x) => x.name === "method",
-    )?.value as string;
+    const inputName = interaction.data.options.find((x) => x.name === "name")
+      ?.value as string;
 
     let docs;
-    let method;
+    let name;
 
     if (!inputPackage || inputPackage === "all") {
       docs = await getAllDocs();
-      let all: ClassParser[] = [];
-      for (const doc of docs) {
-        all = [...all, ...doc.classes];
-      }
-      method = searchMethod(inputMethod, {
-        classes: all,
-      });
+
+      name = searchEverything(inputName, docs);
     } else {
       docs = await getDocs(inputPackage);
-      method = searchMethod(inputMethod, docs);
+      name = searchEverything(inputName, [docs]);
     }
 
-    if (!method) {
-      return notFound(bot, interaction, "Method", inputMethod);
+    if (!name) {
+      return notFound(bot, interaction, "Input", inputName);
     }
 
-    const embeds = createMethodEmbed(bot, method);
+    let embeds;
+
+    if (name instanceof ClassParser) {
+      embeds = createClassEmbed(bot, name);
+    }
+
+    if (name instanceof ClassMethodParser) {
+      embeds = createMethodEmbed(bot, name);
+    }
+
+    if (name instanceof EnumParser) {
+      embeds = createEnumEmbed(bot, name);
+    }
+
+    if (!embeds) {
+      return notFound(bot, interaction, "Type", inputName); // Shouldn't happen...
+    }
 
     await bot.helpers.sendInteractionResponse(
       interaction.id,
@@ -90,7 +106,7 @@ createCommand({
           components: new Components().addButton(
             "Source",
             "Link",
-            method.source?.url || "https://josh.evie.dev",
+            name.source?.url || "https://josh.evie.dev",
           ),
         },
       },

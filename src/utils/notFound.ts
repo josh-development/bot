@@ -19,11 +19,11 @@ export const responses = [
   },
   {
     text:
-      "I'll have you know, punk, that I only do Josh, and `{word}` is definitely not a method in josh!",
+      "I'll have you know, punk, that I only do Josh, and `{word}` is definitely not a part of josh!",
     user: 139412744439988224n,
   },
   {
-    text: "Bruh, `{word}` is not a method in josh lmao",
+    text: "Bruh, `{word}` is not in josh lmao",
     user: 709674034798788618n,
   },
   {

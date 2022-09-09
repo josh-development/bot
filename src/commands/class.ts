@@ -7,21 +7,20 @@ import {
 import { Components } from "../utils/component.ts";
 import { createCommand } from "./mod.ts";
 
-import { BOT_COLOR } from "../../config.ts";
 import {
   getAllDocs,
   getAllPackages,
   getDocs,
   searchClass,
 } from "../utils/docs.ts";
-import { Embeds } from "../utils/embed.ts";
+import { createClassEmbed } from "../utils/joshEmbeds.ts";
 import { notFound } from "../utils/notFound.ts";
 
 const packages = await getAllPackages();
 
 createCommand({
   name: "class",
-  description: "Get documentation of JoshDB",
+  description: "Get documentation of JoshDB regarding a specific class",
   type: ApplicationCommandTypes.ChatInput,
   scope: "Global",
   options: [
@@ -78,23 +77,7 @@ createCommand({
       return notFound(bot, interaction, "Class", inputClass);
     }
 
-    const embeds: Embeds = new Embeds(bot)
-      .setTitle(cls.name)
-      .setColor(BOT_COLOR)
-      .setDescription(cls.comment.description ?? "No description")
-      .addField(
-        "Params",
-        cls.construct.parameters
-          .map((x) => `${x.name}: ${x.type.toString()}`)
-          .join(", ") ?? "No params",
-      );
-
-    if (cls.comment.example.length > 0) {
-      embeds.addField(
-        "Example",
-        cls.comment.example.map((x) => x.text).join(""),
-      );
-    }
+    const embeds = createClassEmbed(bot, cls);
 
     return bot.helpers.sendInteractionResponse(
       interaction.id,
@@ -106,9 +89,7 @@ createCommand({
           components: new Components().addButton(
             "Source",
             "Link",
-            `https://josh.evie.dev/${
-              cls.project.name.split("@joshdb/")[1]
-            }/${cls.name}`,
+            cls.source?.url || "https://josh.evie.dev",
           ),
         },
       },
