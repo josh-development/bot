@@ -91,6 +91,12 @@ createCommand({
             "Source",
             "Link",
             method.source?.url || "https://josh.evie.dev",
+          ).addButton(
+            "Website",
+            "Link",
+            `https://joshdocs.netlify.app/docs/${
+              method.project.name.split("/")[1]
+            }/methods#${method.parent.name}-${method.name}`,
           ),
         },
       },

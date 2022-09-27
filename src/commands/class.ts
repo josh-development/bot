@@ -90,6 +90,12 @@ createCommand({
             "Source",
             "Link",
             cls.source?.url || "https://josh.evie.dev",
+          ).addButton(
+            "Website",
+            "Link",
+            `https://joshdocs.netlify.app/docs/${
+              cls.project.name.split("/")[1]
+            }/classes#${cls.name}`,
           ),
         },
       },

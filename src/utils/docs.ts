@@ -40,11 +40,7 @@ export const resolveReferenceType = (type: ReferenceTypeParser) => {
 };
 
 export const resolveType = (type: TypeParser) => {
-  if (type instanceof ReferenceTypeParser) {
-    return resolveReferenceType(type);
-  }
-
-  return type.toString();
+  return `[${type.toString()}](https://joshdocs.netlify.app/)`;
 };
 
 let filesCache: { date?: Date; files: File[] };

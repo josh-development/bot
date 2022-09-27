@@ -54,6 +54,7 @@ export const notFound = async (
     {
       type: InteractionResponseTypes.ChannelMessageWithSource,
       data: {
+        flags: 1 << 6,
         embeds: new Embeds(bot)
           .setTitle(name + " not found")
           .setColor(BOT_COLOR)
