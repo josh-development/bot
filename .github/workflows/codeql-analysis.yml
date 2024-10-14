@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@b398f525a5587552e573b247ac661067fafa920b # tag=v2
+        uses: github/codeql-action/init@f779452ac5af1c261dce0346a8f964149f49322b # v3
       - name: Auto Build
-        uses: github/codeql-action/autobuild@b398f525a5587552e573b247ac661067fafa920b # tag=v2
+        uses: github/codeql-action/autobuild@f779452ac5af1c261dce0346a8f964149f49322b # v3
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@b398f525a5587552e573b247ac661067fafa920b # tag=v2
+        uses: github/codeql-action/analyze@f779452ac5af1c261dce0346a8f964149f49322b # v3
