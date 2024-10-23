@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Project
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
@@ -25,10 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Project
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Cache deno
-        uses: actions/cache@fd5de65bc895cf536527842281bea11763fefd77 # tag=v3
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           key: ${{ runner.os }}-deno-${{ hashFiles('deps.ts') }}
           restore-keys: ${{ runner.os }}-deno-
