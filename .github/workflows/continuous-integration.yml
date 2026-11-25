@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Project
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3
-      - uses: denoland/setup-deno@v1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: denoland/setup-deno@v2.0.5
         with:
-          deno-version: v1.x
+          deno-version: 2.x
       - name: Deno fmt
         run: deno fmt --check
 
@@ -25,10 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Project
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Cache deno
-        uses: actions/cache@fd5de65bc895cf536527842281bea11763fefd77 # tag=v3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           key: ${{ runner.os }}-deno-${{ hashFiles('deps.ts') }}
           restore-keys: ${{ runner.os }}-deno-
@@ -36,9 +36,9 @@ jobs:
             /home/runner/.deno
             /home/runner/.cache/deno
 
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v2.0.5
         with:
-          deno-version: v1.x
+          deno-version: 2.x
       - name: Deno test
         env:
           TOKEN: ${{ secrets.BOT_TOKEN }}
